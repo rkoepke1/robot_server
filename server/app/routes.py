@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, Response, request, jsonify, current_app
-#from .robotControl import moveRobot
-from .videoStream import generate_frames
 import os
+from . import cameraStreamer
 from . import robotControl
 
 robot = robotControl.Init_Robot(h_cam_servo1=8, v_cam_servo2=7)
 robot.center_camera()
+camera_streamer = cameraStreamer.CameraStreamer()
 main = Blueprint('main', __name__)
 
 @main.route('/')
@@ -14,12 +14,12 @@ def index():
 
 @main.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    camera_streamer.start() 
+    return Response(camera_streamer.generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @main.route('/stop_feed', methods=['POST'])
 def stop_feed():
-    camera.close()
+    camera_streamer.close()
     return jsonify({'status': 'stopped'})
 
 @main.route('/move', methods=['POST'])

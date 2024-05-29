@@ -1,13 +1,12 @@
+// static/js/joystick.js
+
 class Joystick {
     constructor(containerId, joystickId) {
         this.container = document.getElementById(containerId);
         this.joystick = document.getElementById(joystickId);
         this.isDragging = false;
 
-        this.containerRect = this.container.getBoundingClientRect();
-        this.centerX = this.containerRect.width / 2;
-        this.centerY = this.containerRect.height / 2;
-        this.maxDistance = this.containerRect.width / 2;
+        this.updateContainerRect();
 
         this.initEventListeners();
         console.log('Joystick initialized');
@@ -66,8 +65,8 @@ class Joystick {
         this.joystick.style.left = `${newX}px`;
         this.joystick.style.top = `${newY}px`;
 
-        let normalizedX = (newX - this.centerX) / this.maxDistance;
-        let normalizedY = (newY - this.centerY) / this.maxDistance;
+        let normalizedX = deltaX / this.maxDistance;
+        let normalizedY = deltaY / this.maxDistance;
 
         this.sendJoystickData(normalizedX, normalizedY);
     }
