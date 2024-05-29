@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Robot Control</h1>
+<img id="video" src="{{ url_for('main.video_feed') }}" style="display: none;">
+<button onclick="startStream()">Start Stream</button>
+<button onclick="stopStream()">Stop Stream</button>
+<br>
+<button onclick="sendCommand('forward')">Move Forward</button>
+<button onclick="sendCommand('stop')">Stop</button>
+<h1>Press a button on your gamepad to see it detected here</h1>
+<div id="gamepadStatus">No gamepad connected</div>
+
+
+<!-- Joystick Container -->
+<div id="joystickContainer">
+    <div id="joystick"></div>
+</div>
+
+
+<script type="module">
+    import Joystick from '/static/js/joystick.js';  
+    
+    function startStream() {
+        document.getElementById('video').style.display = 'block';
+        document.getElementById('video').src = '{{ url_for("main.video_feed") }}';
+    }
+
+    function stopStream() {
+        document.getElementById('video').style.display = 'none';
+        fetch('{{ url_for("main.stop_feed") }}');
+    }
+
+
+    const joystick = new Joystick('joystickContainer', 'joystick');
+</script>
+{% endblock %}
