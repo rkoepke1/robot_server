@@ -1,53 +1,51 @@
 {% extends "base.html" %}
-
 {% block title %}Home{% endblock %}
-
 {% block content %}
-<h1>Robot Control</h1>
-<div id="videoContainer">
-    <img id="video" src="" alt="Camera feed will appear here">
-</div>
-<img id="video" src="" style="display: none;">
-<div id="buttonContainer">
-    <button id="startStreamButton">Start Stream</button>
-    <button id="stopStreamButton">Stop Stream</button>
-    <button id="fullscreenButton">Fullscreen</button>
-    <br>
-    <button id="moveForwardButton">Move Forward</button>
-    <button id="stopButton">Stop</button>
-</div>
+    <h1>Robot Control</h1>
+    <div id="fullscreenContainer">
+        <div id="videoContainer">
+            <img id="video" src="" alt="Camera feed will appear here" style="width: 100%; height: auto;">
+        </div>
+        <div id="controlContainer">
+            <div id="buttonContainer">
+                <button id="startStreamButton">Start Stream</button>
+                <button id="stopStreamButton">Stop Stream</button>
+                <button id="fullscreenButton">Fullscreen</button>
+            </div>
+            <div id="joystickContainer">
+                <div id="joystick"></div>
+            </div>
+        </div>
 
-<h1>Press a button on your gamepad to see it detected here</h1>
-<div id="gamepadStatus">No gamepad connected</div>
+    </div>
 
-<!-- Joystick Container -->
-<div id="joystickContainer">
-    <div id="joystick"></div>
-</div>
+    <img id="video" src="" style="display: none;">
+ 
+    <script type="module">
+        import Joystick from '/static/js/joystick.js';
+        import StreamController from '/static/js/streamController.js';
 
-<script type="module">
-    import Joystick from '/static/js/joystick.js';
-    import StreamController from '/static/js/streamController.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoUrl = '{{ url_for("main.video_feed") }}';
+            const stopUrl = '{{ url_for("main.stop_feed") }}';
+            const streamController = new StreamController('video');
+            streamController.initialize(videoUrl, stopUrl);
+            const joystick = new Joystick('joystickContainer', 'joystick');
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const videoUrl = '{{ url_for("main.video_feed") }}';
-        const stopUrl = '{{ url_for("main.stop_feed") }}';
-        const streamController = new StreamController('video');
-        streamController.initialize(videoUrl, stopUrl);
-        const joystick = new Joystick('joystickContainer', 'joystick');
+            document.getElementById('startStreamButton').addEventListener('click', () => {
+                streamController.startStream(videoUrl);
+            });
 
-        document.getElementById('startStreamButton').addEventListener('click', () => {
-            streamController.startStream(videoUrl);
+            document.getElementById('stopStreamButton').addEventListener('click', () => {
+                streamController.stopStream(stopUrl);
+                joystick.updateContainerRect()
+            });
+
+            document.getElementById('fullscreenButton').addEventListener('click', () => {
+                streamController.toggleFullscreen();
+                joystick.updateContainerRect();
+            });
+
         });
-
-        document.getElementById('stopStreamButton').addEventListener('click', () => {
-            streamController.stopStream(stopUrl);
-        });
-
-        document.getElementById('fullscreenButton').addEventListener('click', () => {
-            streamController.toggleFullscreen();
-        });
-
-    });
-</script>
+    </script>
 {% endblock %}
